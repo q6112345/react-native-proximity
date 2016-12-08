@@ -7,6 +7,7 @@
 #import "RCTBridge.h"
 #import "RCTEventDispatcher.h"
 #import "RNProximity.h"
+#import <AVFoundation/AVFoundation.h>
 
 @implementation RNProximity
 
@@ -30,9 +31,23 @@
 - (void)sensorStateChange:(NSNotificationCenter *)notification
 {
     BOOL proximityState = [[UIDevice currentDevice] proximityState];
+    [self deviceIsCloseToUser:proximityState];
     [_bridge.eventDispatcher sendDeviceEventWithName:@"proximityStateDidChange"
                                                 body:@{@"proximity": @(proximityState)}];
 }
+
+
+- (void)deviceIsCloseToUser:(BOOL)isCloseToUser {
+    if (isCloseToUser) {
+        //Switch to receiver
+        [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+    }else {
+        //Switch to speaker
+        [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
+    }
+
+}
+
 
 RCT_EXPORT_MODULE();
 
